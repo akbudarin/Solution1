@@ -1,8 +1,8 @@
 import time
-
 from passwords import telegram_key
 import requests
 import json
+import datetime
 
 
 def get_info_for_one_signal(ticker: str):
@@ -31,14 +31,20 @@ def send_message_to_channel(some_text):
 
 
 def main():
+    print(datetime.datetime.now().time())
+    start_time = datetime.time(hour=9, minute=0)
+    finish_time = datetime.time(hour=23, minute=0)
     list_of_tickers = get_list_of_tickers()
     while True:
-        for ticker in list_of_tickers:
-            signal_info = get_info_for_one_signal(ticker)
-            text_to_send = \
-                "Тикер: {ticker}, сигнал: {signal}".format(
-                ticker=signal_info['ticker'], signal=signal_info['signal'])
-            send_message_to_channel(text_to_send)
+        if start_time < datetime.datetime.now().time() < finish_time:
+            for ticker in list_of_tickers:
+                signal_info = get_info_for_one_signal(ticker)
+                text_to_send = \
+                    "Тикер: {ticker}, сигнал: {signal}".format(
+                    ticker=signal_info['ticker'], signal=signal_info['signal'])
+                send_message_to_channel(text_to_send)
+                time.sleep(6)
+        else:
             time.sleep(6)
 
 
