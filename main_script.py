@@ -36,7 +36,8 @@ def main():
     finish_time = datetime.time(hour=23, minute=0)
     list_of_tickers = get_list_of_tickers()
     while True:
-        if start_time < datetime.datetime.now().time() < finish_time:
+        if start_time < datetime.datetime.now().time() < finish_time and \
+                datetime.datetime.today().weekday() < 5:
             for ticker in list_of_tickers:
                 signal_info = get_info_for_one_signal(ticker)
                 text_to_send = \
