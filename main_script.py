@@ -1,8 +1,13 @@
+import logging
 import time
 from passwords import telegram_key
 import requests
 import json
 import datetime
+
+logging.basicConfig(
+    filename="logs.txt", level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 def get_info_for_one_signal(ticker: str):
@@ -30,6 +35,15 @@ def send_message_to_channel(some_text):
         'text={some_text}'.format(key_bot=telegram_key, some_text=some_text))
 
 
+def send_message_about_error(text_error):
+    """ Send message about any error to the owner """
+    text_error = "Time error is {}. The error is ".format(
+        str(datetime.datetime.now().time())[:-7]) + text_error
+    requests.post(
+        'https://api.telegram.org/bot{key_bot}/sendMessage?chat_id=46691361&'
+        'text={some_text}'.format(key_bot=telegram_key, some_text=text_error))
+
+
 def main():
     print(datetime.datetime.now().time())
     start_time = datetime.time(hour=9, minute=0)
@@ -39,11 +53,15 @@ def main():
         if start_time < datetime.datetime.now().time() < finish_time and \
                 datetime.datetime.today().weekday() < 5:
             for ticker in list_of_tickers:
-                signal_info = get_info_for_one_signal(ticker)
-                text_to_send = \
-                    "Тикер: {ticker}, сигнал: {signal}".format(
-                    ticker=signal_info['ticker'], signal=signal_info['signal'])
-                send_message_to_channel(text_to_send)
+                try:
+                    signal_info = get_info_for_one_signal(ticker)
+                    text_to_send = \
+                        "Тикер: {ticker}, сигнал: {signal}".format(
+                        ticker=signal_info['ticker'], signal=signal_info['signal'])
+                    send_message_to_channel(text_to_send)
+                except Exception as ex:
+                    logging.info("Error in loop!" + str(ex))
+                    send_message_about_error(ex)
                 time.sleep(6)
         else:
             time.sleep(6)
@@ -51,3 +69,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
