@@ -1,5 +1,6 @@
 import logging
 import time
+import traceback
 from passwords import telegram_key
 import requests
 import json
@@ -37,11 +38,11 @@ def send_message_to_channel(some_text):
 
 def send_message_about_error(text_error):
     """ Send message about any error to the owner """
-    text_error = "Time error is {}. The error is ".format(
+    new_text_error = "Time error is {}. The error is ".format(
         str(datetime.datetime.now().time())[:-7]) + text_error
     requests.post(
         'https://api.telegram.org/bot{key_bot}/sendMessage?chat_id=46691361&'
-        'text={some_text}'.format(key_bot=telegram_key, some_text=text_error))
+        'text={some_text}'.format(key_bot=telegram_key, some_text=new_text_error))
 
 
 def main():
@@ -61,7 +62,9 @@ def main():
                     send_message_to_channel(text_to_send)
                 except Exception as ex:
                     logging.info("Error in loop!" + str(ex))
-                    send_message_about_error(ex)
+                    logging.info(str(traceback.format_exc()))
+                    send_message_about_error(str(ex))
+                    send_message_about_error(str(traceback.format_exc()))
                 time.sleep(6)
         else:
             time.sleep(6)
