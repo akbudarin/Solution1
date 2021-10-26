@@ -7,7 +7,7 @@ import json
 import datetime
 
 logging.basicConfig(
-    filename="logs.txt", level=logging.INFO,
+    filename="logs_Signals.txt", level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s')
 
 
@@ -34,9 +34,10 @@ def send_message_to_channel(some_text):
         'text={some_text}'.format(key_bot=telegram_key, some_text=some_text))
 
     # for "Signals" channel
-    #     requests.post(
-    #         'https://api.telegram.org/bot{key_bot}/sendMessage?chat_id=-1001680841952&'
-    #         'text={some_text}'.format(key_bot=telegram_key, some_text=some_text))
+    if " F," in some_text or "TWTR" in some_text:
+        requests.post(
+            'https://api.telegram.org/bot{key_bot}/sendMessage?chat_id=-1001680841952&'
+            'text={some_text}'.format(key_bot=telegram_key, some_text=some_text))
 
 
 def send_message_about_error(text_error):
@@ -62,7 +63,7 @@ def main():
     print("Current time is " + str(datetime.datetime.now().time())[:-7])
     start_time = datetime.time(hour=9, minute=0)
     finish_time = datetime.time(hour=23, minute=59)
-    list_of_tickers = get_list_of_tickers()
+    list_of_tickers = ['T', 'TWTR']
     dict_previous_status = get_current_status_of_signals(list_of_tickers)
     print("Started loop")
     while True:
@@ -98,9 +99,9 @@ def main():
                     logging.info(str(traceback.format_exc()))
                     send_message_about_error(str(ex))
                     send_message_about_error(str(traceback.format_exc()))
-                time.sleep(6)
+                time.sleep(30)
         else:
-            time.sleep(6)
+            time.sleep(30)
 
 
 if __name__ == "__main__":
