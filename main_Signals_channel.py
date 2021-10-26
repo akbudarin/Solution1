@@ -57,7 +57,7 @@ def main():
     print("Current time is " + str(datetime.datetime.now().time())[:-7])
     start_time = datetime.time(hour=9, minute=0)
     finish_time = datetime.time(hour=23, minute=59)
-    list_of_tickers = ['T', 'TWTR']
+    list_of_tickers = ['F', 'TWTR']
     dict_previous_status = get_current_status_of_signals(list_of_tickers)
     print("Started loop")
     while True:
