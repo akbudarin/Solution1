@@ -33,6 +33,24 @@ def send_message_to_channel(some_text):
         'https://api.telegram.org/bot{key_bot}/sendMessage?chat_id=-1001572163167&'
         'text={some_text}'.format(key_bot=telegram_key, some_text=some_text))
 
+# def send_message_to_channel(some_text):
+#     import urllib.parse
+#
+#     def urlencode_withoutplus(query):
+#         if hasattr(query, 'items'):
+#             query = query.items()
+#         l = []
+#         for k, v in query:
+#             k = urllib.parse.quote(str(k), safe=' #')
+#             v = urllib.parse.quote(str(v), safe=' #')
+#             l.append(k + '=' + v)
+#         return '&'.join(l)
+#     request_text = 'https://api.telegram.org/bot{key_bot}/sendMessage?chat_id' \
+#                    '=-1001572163167&text={some_text}'.format(
+#         key_bot=telegram_key, some_text=some_text)
+#     request_text = urlencode_withoutplus(request_text)
+#     requests.post(request_text)
+
     # for "Signals" channel
     #     requests.post(
     #         'https://api.telegram.org/bot{key_bot}/sendMessage?chat_id=-1001680841952&'
@@ -71,7 +89,7 @@ def main():
             for ticker in list_of_tickers:
                 try:
                     signal_info = get_info_for_one_signal(ticker)
-                    text_to_send = "Ticker: #{ticker}, signal: {signal}"
+                    text_to_send = "Ticker: %23{ticker}, signal: {signal}"
                     # Если ещё не на удержании и получили "HOLD" сигнал
                     if dict_previous_status[ticker][1] is False and signal_info['signal'] == "HOLD🟡":
                         dict_previous_status[ticker][1] = True    # Ставим на удержание (блокировку)
