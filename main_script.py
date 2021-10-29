@@ -71,8 +71,7 @@ def main():
             for ticker in list_of_tickers:
                 try:
                     signal_info = get_info_for_one_signal(ticker)
-                    text_to_send = "Ticker: {ticker}, signal: {signal}"
-
+                    text_to_send = "Ticker: #{ticker}, signal: {signal}"
                     # Если ещё не на удержании и получили "HOLD" сигнал
                     if dict_previous_status[ticker][1] is False and signal_info['signal'] == "HOLD🟡":
                         dict_previous_status[ticker][1] = True    # Ставим на удержание (блокировку)
