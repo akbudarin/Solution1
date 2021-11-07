@@ -5,6 +5,7 @@ from passwords import telegram_key
 import requests
 import json
 import datetime
+import yfinance as yf
 
 logging.basicConfig(
     filename="logs.txt", level=logging.INFO,
@@ -53,6 +54,13 @@ def get_current_status_of_signals(list_of_tickers):
     return status_dict
 
 
+def get_current_price(ticker):
+    ticker_yahoo = yf.Ticker(ticker)
+    data = ticker_yahoo.history()
+    last_quote = round(data.tail(1)['Close'].iloc[0], 2)
+    return last_quote
+
+
 def main():
     print("Current time is " + str(datetime.datetime.now().time())[:-7])
     start_time = datetime.time(hour=6, minute=0)
@@ -63,11 +71,12 @@ def main():
     print("Started loop")
     while True:
         if start_time < datetime.datetime.now(tz=tzoffset("UTC+0", 0)).time() < finish_time and \
-                datetime.datetime.now(tz=tzoffset("UTC+0", 0)).today().weekday() < 5:
+                datetime.datetime.now(tz=tzoffset("UTC+0", 0)).today().weekday() < 9:
             for ticker in list_of_tickers:
                 try:
                     signal_info = get_info_for_one_signal(ticker)
-                    text_to_send = "Ticker: %23{ticker}, signal: {signal}"
+                    text_to_send = "Ticker: %23{ticker}\n" \
+                                   "Signal: {signal}"
                     # Если ещё не на удержании и получили "HOLD" сигнал
                     if dict_previous_status[ticker][1] is False and signal_info['signal'] == "HOLD🟡":
                         dict_previous_status[ticker][1] = True    # Ставим на удержание (блокировку)
@@ -82,9 +91,14 @@ def main():
                         send_message_to_channel(text_to_send)
                     elif signal_info['signal'] != "HOLD🟡":
                         dict_previous_status[ticker][1] = False  # Снимаем блокировку, если она есть
+                        text_to_send = "Ticker: %23{ticker}\n" \
+                                       "Signal: {signal}\n" \
+                                       "Price: {price}"
                         text_to_send = text_to_send.format(
                             ticker=signal_info['ticker'],
-                            signal=signal_info['signal'])
+                            signal=signal_info['signal'],
+                            price=get_current_price(signal_info['ticker'])
+                        )
 
                         if signal_info['signal'] == "BUY🔴":
                             dict_previous_status[ticker][3] = 0
@@ -120,4 +134,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
+    #get_current_price("F")
