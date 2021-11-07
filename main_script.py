@@ -49,20 +49,21 @@ def get_current_status_of_signals(list_of_tickers):
 
     status_dict = {}
     for ticker in list_of_tickers:
-        status_dict[ticker] = [get_info_for_one_signal(ticker)['signal'], False]
+        status_dict[ticker] = [get_info_for_one_signal(ticker)['signal'], False, 0, 0] # 3-ее значиение отвечает за кол-во buy, 4-ое за sell
     return status_dict
 
 
 def main():
     print("Current time is " + str(datetime.datetime.now().time())[:-7])
-    start_time = datetime.time(hour=9, minute=0)
-    finish_time = datetime.time(hour=23, minute=59)
+    start_time = datetime.time(hour=6, minute=0)
+    finish_time = datetime.time(hour=23, minute=0)
+    from dateutil.tz import tzoffset
     list_of_tickers = get_list_of_tickers()
     dict_previous_status = get_current_status_of_signals(list_of_tickers)
     print("Started loop")
     while True:
-        if start_time < datetime.datetime.now().time() < finish_time and \
-                datetime.datetime.today().weekday() < 5:
+        if start_time < datetime.datetime.now(tz=tzoffset("UTC+0", 0)).time() < finish_time and \
+                datetime.datetime.now(tz=tzoffset("UTC+0", 0)).today().weekday() < 5:
             for ticker in list_of_tickers:
                 try:
                     signal_info = get_info_for_one_signal(ticker)
@@ -80,11 +81,31 @@ def main():
                                 signal=text_signal)
                         send_message_to_channel(text_to_send)
                     elif signal_info['signal'] != "HOLD🟡":
-                        dict_previous_status[ticker][1] = False   # Снимаем блокировку, если она есть
+                        dict_previous_status[ticker][1] = False  # Снимаем блокировку, если она есть
                         text_to_send = text_to_send.format(
                             ticker=signal_info['ticker'],
                             signal=signal_info['signal'])
-                        send_message_to_channel(text_to_send)
+
+                        if signal_info['signal'] == "BUY🔴":
+                            dict_previous_status[ticker][3] = 0
+                            if dict_previous_status[ticker][2] < 3:
+                                if dict_previous_status[ticker][2] == 0:
+                                    send_message_to_channel(text_to_send)
+                                dict_previous_status[ticker][2] += 1
+                            elif dict_previous_status[ticker][2] >= 3:
+                                dict_previous_status[ticker][2] = -2
+                                send_message_to_channel(text_to_send)
+
+                        if signal_info['signal'] == "SELL🟢":
+                            dict_previous_status[ticker][2] = 0
+                            if dict_previous_status[ticker][3] < 3:
+                                if dict_previous_status[ticker][3] == 0:
+                                    send_message_to_channel(text_to_send)
+                                dict_previous_status[ticker][3] += 1
+                            elif dict_previous_status[ticker][3] >= 3:
+                                dict_previous_status[ticker][3] = -2
+                                send_message_to_channel(text_to_send)
+
                         dict_previous_status[ticker][0] = signal_info['signal']
 
                 except Exception as ex:
