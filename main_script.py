@@ -71,7 +71,7 @@ def main():
     print("Started loop")
     while True:
         if start_time < datetime.datetime.now(tz=tzoffset("UTC+0", 0)).time() < finish_time and \
-                datetime.datetime.now(tz=tzoffset("UTC+0", 0)).today().weekday() < 9:
+                datetime.datetime.now(tz=tzoffset("UTC+0", 0)).today().weekday() < 5:
             for ticker in list_of_tickers:
                 try:
                     signal_info = get_info_for_one_signal(ticker)
