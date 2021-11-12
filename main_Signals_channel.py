@@ -9,7 +9,7 @@ import datetime
 from scrapy.selector import Selector
 
 logging.basicConfig(
-    filename="logs.txt", level=logging.INFO,
+    filename="logs_Signals.txt", level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s')
 
 
