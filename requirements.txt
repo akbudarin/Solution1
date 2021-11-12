@@ -1,2 +1,2 @@
 requests~=2.26.0
-yfinance~=0.1.64
+Scrapy~=2.5.1
