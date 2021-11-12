@@ -1,15 +1,49 @@
 import logging
+import sys
 import time
 import traceback
 from passwords import telegram_key
 import requests
 import json
 import datetime
-import yfinance as yf
+from scrapy.selector import Selector
 
 logging.basicConfig(
     filename="logs.txt", level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s')
+
+
+def get_current_price(ticker: str):
+    ticker_investing_pair = {'AMD': "adv-micro-device", 'F': "ford-motor-co",
+                             'T': "at-t", 'NFLX': "netflix,-inc.",
+                             'PYPL': "paypal-holdings-inc", 'NVDA': "nvidia-corp",
+                             'TSLA': "tesla-motors", 'AAL': "american-airlines-group",
+                             'NKE': "nike", 'SHOP': "shopify-inc",
+                             'GE': "general-electric", 'TWTR': "twitter-inc",
+                             'PFE': "pfizer", 'BAC': "bank-of-america",
+                             'DIS': "disney", 'GOOG': "google-inc-c",
+                             'JNJ': "johnson-johnson", 'FB': "facebook-inc",
+                             'UAL': "united-continenta", 'V': "visa-inc",
+                             'MA': "mastercard-cl-a", 'MRK': "merck---co",
+                             'AMZN': "amazon-com-inc", 'SNAP': "snap-inc",
+                             'SPOT': "spotify-technology", 'XOM': "exxon-mobil",
+                             'HAL': "halliburton-co", 'BABA': "alibaba",
+                             'C': "citigroup", 'MSFT': "microsoft-corp",
+                             'IBM': "ibm", 'SQ': "square-inc",
+                             'UBER': "uber-technologies-inc", 'JPM': "jp-morgan-chase",
+                             'AAPL': "apple-computer-inc", 'ARNC': "arconic-inc",
+                             'BA': "boeing-co", 'BBY': "best-buy",
+                             'CMCSA': "comcast-corp-new", 'COIN': "coinbase-global",
+                             'CSCO': "cisco-sys-inc", 'CVX': "chevron",
+                             'GS': "goldman-sachs-group", 'INTC': "intel-corp",
+                             'KO': "coca-cola-co", 'LMT': "lockheed-martin",
+                             'TXN': "texas-instru", 'VZ': "verizon-communications",
+                             'WFC': "wells-fargo"}
+    r = requests.get('https://ru.investing.com/equities/{}'.format(
+        ticker_investing_pair[ticker]))
+    price = Selector(text=r.text).xpath('//*[@data-test="instrument-price-last"]/text()').get()
+    print()
+    return price
 
 
 def get_info_for_one_signal(ticker: str):
@@ -22,10 +56,14 @@ def get_info_for_one_signal(ticker: str):
 
 
 def get_list_of_tickers():
-    url = "https://fincloudlabs.com/api/ticker"
+    url = "https://fincloudlabs.com/api/market"
     r = requests.get(url)
-    r_data = json.loads(r.text)
-    list_with_names_of_tickers = list(r_data.keys())
+    try:
+        r_data = json.loads(r.text)
+        list_with_names_of_tickers = list(r_data.keys())
+    except Exception as ex:
+        sys.exit("Страница {} недоступна!\n"
+                 "{}".format(url, r.status_code))
     return list_with_names_of_tickers
 
 
@@ -52,13 +90,6 @@ def get_current_status_of_signals(list_of_tickers):
     for ticker in list_of_tickers:
         status_dict[ticker] = [get_info_for_one_signal(ticker)['signal'], False, 0, 0] # 3-ее значиение отвечает за кол-во buy, 4-ое за sell
     return status_dict
-
-
-def get_current_price(ticker):
-    ticker_yahoo = yf.Ticker(ticker)
-    data = ticker_yahoo.history()
-    last_quote = round(data.tail(1)['Close'].iloc[0], 2)
-    return last_quote
 
 
 def main():
