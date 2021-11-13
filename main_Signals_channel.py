@@ -21,7 +21,7 @@ def get_current_price(ticker: str):
                              'NKE': "nike", 'SHOP': "shopify-inc",
                              'GE': "general-electric", 'TWTR': "twitter-inc",
                              'PFE': "pfizer", 'BAC': "bank-of-america",
-                             'DIS': "disney", 'GOOG': "google-inc-c",
+                             'DIS': "disney", 'GOOGL': "google-inc-c",
                              'JNJ': "johnson-johnson", 'FB': "facebook-inc",
                              'UAL': "united-continenta", 'V': "visa-inc",
                              'MA': "mastercard-cl-a", 'MRK': "merck---co",
