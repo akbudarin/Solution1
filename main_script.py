@@ -16,7 +16,10 @@ def get_info_for_one_signal(ticker: str):
     r = requests.get(pattern_url + ticker)
     r_data = json.loads(r.text)
     dict_of_emoji = {'HOLD': "🟡", "BUY": "🔴", "SELL": "🟢"}
-    r_data["signal"] = r_data["signal"] + dict_of_emoji[r_data["signal"]]
+    try:
+        r_data["signal"] = r_data["signal"] + dict_of_emoji[r_data["signal"]]
+    except Exception as ex:
+        raise ValueError(str(r.text) + "\n" + str(ex))
     return r_data
 
 

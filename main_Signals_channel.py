@@ -5,8 +5,8 @@ import traceback
 from passwords import telegram_key
 import requests
 import json
-import datetime
 from scrapy.selector import Selector
+import datetime
 
 logging.basicConfig(
     filename="logs_Signals.txt", level=logging.INFO,
@@ -108,8 +108,9 @@ def main():
     dict_previous_status = get_current_status_of_signals(list_of_tickers)
     print("Started loop")
     while True:
+        # example other solution: (datetime.datetime.now() + datetime.timedelta(hours=10))
         if start_time < datetime.datetime.now(tz=tzoffset("UTC+0", 0)).time() < finish_time and \
-                datetime.datetime.now(tz=tzoffset("UTC+0", 0)).today().weekday() < 5:
+                datetime.datetime.now(tz=tzoffset("UTC+0", 0)).weekday() < 5:
             for ticker in list_of_tickers:
                 try:
                     signal_info = get_info_for_one_signal(ticker)
