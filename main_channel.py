@@ -9,7 +9,7 @@ from scrapy.selector import Selector
 import datetime
 
 logging.basicConfig(
-    filename="logs_Signals.txt", level=logging.INFO,
+    filename="logs_main.txt", level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s')
 
 
@@ -49,6 +49,8 @@ def get_current_price(ticker: str):
     r = requests.get('https://ru.investing.com/equities/{}'.format(
         ticker_investing_pair[ticker]))
     price = Selector(text=r.text).xpath('//*[@data-test="instrument-price-last"]/text()').get()
+    if price.count(',') == 2:
+        price = price.replace(',', '')
     price = float(price.replace(',', '.'))
     price = '{} - {}'.format(round(0.997*price, 2), round(1.003*price, 2))
     return price
