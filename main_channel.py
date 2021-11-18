@@ -49,9 +49,7 @@ def get_current_price(ticker: str):
     r = requests.get('https://ru.investing.com/equities/{}'.format(
         ticker_investing_pair[ticker]))
     price = Selector(text=r.text).xpath('//*[@data-test="instrument-price-last"]/text()').get()
-    if price.count(',') == 2:
-        price = price.replace(',', '', 1)
-    price = float(price.replace(',', '.'))
+    price = float(price.replace('.', '').replace(',', '.'))
     price = '{} - {}'.format(round(0.997*price, 2), round(1.003*price, 2))
     return price
 
