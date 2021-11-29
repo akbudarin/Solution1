@@ -63,7 +63,13 @@ def get_info_for_one_signal(ticker: str):
     r = requests.get(pattern_url + ticker)
     r_data = json.loads(r.text)
     dict_of_emoji = {'HOLD': "🟡", "BUY": "🔴", "SELL": "🟢"}
-    r_data["signal"] = r_data["signal"] + dict_of_emoji[r_data["signal"]]
+    try:
+        r_data["signal"] = r_data["signal"] + dict_of_emoji[r_data["signal"]]
+    except KeyError:
+        send_message_about_error(r.url + r.reason + r.text +
+                                 str(traceback.format_exc()))
+        print(r.url + r.reason + r.text)
+        return ''
     return r_data
 
 
@@ -97,7 +103,6 @@ def send_message_about_error(text_error):
 def get_current_status_of_signals(list_of_tickers):
     """ Return dict which key is ticker name and value is list with two elements.
         First element is signal data. Second is flag for stoppage """
-
     status_dict = {}
     for ticker in list_of_tickers:
         status_dict[ticker] = [get_info_for_one_signal(ticker)['signal'], False, 0, 0] # 3-ее значиение отвечает за кол-во buy, 4-ое за sell
@@ -119,6 +124,8 @@ def main():
             for ticker in list_of_tickers:
                 try:
                     signal_info = get_info_for_one_signal(ticker)
+                    if signal_info == '':
+                        continue
                     text_to_send = "Ticker: %23{ticker}\n" \
                                    "Signal: {signal}"
                     # Если ещё не на удержании и получили "HOLD" сигнал
