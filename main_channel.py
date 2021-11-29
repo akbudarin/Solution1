@@ -105,7 +105,10 @@ def get_current_status_of_signals(list_of_tickers):
         First element is signal data. Second is flag for stoppage """
     status_dict = {}
     for ticker in list_of_tickers:
-        status_dict[ticker] = [get_info_for_one_signal(ticker)['signal'], False, 0, 0] # 3-ее значиение отвечает за кол-во buy, 4-ое за sell
+        try:
+            status_dict[ticker] = [get_info_for_one_signal(ticker)['signal'], False, 0, 0] # 3-ее значиение отвечает за кол-во buy, 4-ое за sell
+        except TypeError:
+            pass
     return status_dict
 
 
