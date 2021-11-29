@@ -60,7 +60,7 @@ def get_current_price(ticker: str):
 
 def get_info_for_one_signal(ticker: str):
     pattern_url = "http://fincloudlabs.com/api/signal/"
-    r = requests.get(pattern_url + ticker)
+    r = requests.get(pattern_url + ticker, headers={'apiaccesskey': 'ABwdI6XOb9eq5Ica1CgV'})
     r_data = json.loads(r.text)
     dict_of_emoji = {'HOLD': "🟡", "BUY": "🔴", "SELL": "🟢"}
     try:
@@ -75,7 +75,7 @@ def get_info_for_one_signal(ticker: str):
 
 def get_list_of_tickers():
     url = "https://fincloudlabs.com/api/market"
-    r = requests.get(url)
+    r = requests.get(url, headers={'apiaccesskey': 'ABwdI6XOb9eq5Ica1CgV'})
     try:
         r_data = json.loads(r.text)
         list_with_names_of_tickers = list(r_data.keys())
