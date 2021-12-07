@@ -57,12 +57,12 @@ def get_list_of_tickers():
 
 
 def send_message_to_channel(some_text):
-    # requests.post(
-    #     'https://api.telegram.org/bot{key_bot}/sendMessage?chat_id=-1001572163167&'
-    #     'text={some_text}'.format(key_bot=telegram_key, some_text=some_text))
     requests.post(
-        'https://api.telegram.org/bot{key_bot}/sendMessage?chat_id=-1001680841952&'
+        'https://api.telegram.org/bot{key_bot}/sendMessage?chat_id=-1001572163167&'
         'text={some_text}'.format(key_bot=telegram_key, some_text=some_text))
+    # requests.post(
+    #     'https://api.telegram.org/bot{key_bot}/sendMessage?chat_id=-1001680841952&'
+    #     'text={some_text}'.format(key_bot=telegram_key, some_text=some_text))
 
 
 def send_message_about_error(text_error):
