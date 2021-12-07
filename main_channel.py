@@ -2,6 +2,8 @@ import logging
 import sys
 import time
 import traceback
+import schedule as schedule
+from multiprocessing import Process, Manager
 from passwords import telegram_key
 import requests
 import json
@@ -18,7 +20,9 @@ def get_current_price(ticker: str):
         'http://fincloudlabs.com/api/candle/{}'.format(ticker),
         headers={'apiaccesskey': 'ABwdI6XOb9eq5Ica1CgV'})
     r_data = json.loads(r.text)
-    price = '{} - {}'.format(r_data['low'], r_data['high'])
+    r_data_low = "%.2f" % float(r_data['low'])
+    r_data_high = "%.2f" % float(r_data['high'])
+    price = '{} - {}'.format(r_data_low, r_data_high)
     return price
 
 
@@ -70,46 +74,67 @@ def send_message_about_error(text_error):
         'text={some_text}'.format(key_bot=telegram_key, some_text=new_text_error))
 
 
+def append_ticker_to_list(ticker, return_list):
+    text_to_send = "Ticker: %23{ticker}\n" \
+                   "Signal: {signal}\n" \
+                   "Price: {price}\n\n"
+    try:
+        signal_info = get_info_for_one_signal(ticker)
+        return_list.append(text_to_send.format(
+            ticker=signal_info['ticker'],
+            signal=signal_info["signal"],
+            price=get_current_price(ticker)))
+    except Exception as ex:
+        logging.info("Error!" + str(ex))
+        logging.info(str(traceback.format_exc()))
+
+
+def get_info_for_tickers(list_of_tickers):
+    procs = []
+    manager = Manager()
+    return_list = manager.list()
+
+    for ticker in list_of_tickers:
+        proc = Process(target=append_ticker_to_list, args=(ticker, return_list))
+        procs.append(proc)
+        proc.start()
+
+    for proc in procs:
+        proc.join()
+
+    return list(return_list)
+
+
 def main():
     print("Current time is " + str(datetime.datetime.now().time())[:-7])
     start_time = datetime.time(hour=6, minute=0)
     finish_time = datetime.time(hour=23, minute=0)
-
     list_of_tickers = get_list_of_tickers()
-    print("Started loop")
-    text_to_send = "Ticker: %23{ticker}\n" \
-                   "Signal: {signal}\n" \
-                   "Price: {price}"
-    while True:
-        # example other solution: (datetime.datetime.now() + datetime.timedelta(hours=10))
-        if start_time < datetime.datetime.now(tz=tzoffset("UTC+0", 0)).time() < finish_time and \
-                datetime.datetime.now(tz=tzoffset("UTC+0", 0)).weekday() < 5:
-            data_tickers = []
-            start_time_11 = time.time()
-
-            for ticker in list_of_tickers:
-                try:
-                    signal_info = get_info_for_one_signal(ticker)
-                    if signal_info == '':
-                        continue
-                    else:
-                        data_tickers.append(text_to_send.format(
-                            ticker=signal_info['ticker'],
-                            signal=signal_info["signal"],
-                            price=get_current_price(ticker)))
-                except Exception as ex:
-                    logging.info("Error in loop!" + str(ex))
-                    logging.info(str(traceback.format_exc()))
-                    send_message_about_error(str(ex) + str(traceback.format_exc()))
-            print("--- %s seconds ---" % (time.time() - start_time_11))
-            for count, i in enumerate(data_tickers):
-                # time.sleep(1)
-                # send_message_to_channel(i)
-                print(count)
-            time.sleep(300-60-60)
-        else:
-            time.sleep(300-60-60)
+    if start_time < datetime.datetime.now(tz=tzoffset("UTC+0", 0)).time() < finish_time \
+            and datetime.datetime.now(tz=tzoffset("UTC+0", 0)).weekday() < 5:
+        data_tickers = get_info_for_tickers(list_of_tickers)
+        five_tickers = ''
+        for count, i in enumerate(data_tickers, 1):
+            five_tickers += i
+            if count % 5 == 0:
+                send_message_to_channel(five_tickers)
+                five_tickers = ''
 
 
 if __name__ == "__main__":
-    main()
+    schedule.every().hour.at(":00").do(main)
+    schedule.every().hour.at(":05").do(main)
+    schedule.every().hour.at(":10").do(main)
+    schedule.every().hour.at(":15").do(main)
+    schedule.every().hour.at(":20").do(main)
+    schedule.every().hour.at(":25").do(main)
+    schedule.every().hour.at(":30").do(main)
+    schedule.every().hour.at(":35").do(main)
+    schedule.every().hour.at(":40").do(main)
+    schedule.every().hour.at(":45").do(main)
+    schedule.every().hour.at(":50").do(main)
+    schedule.every().hour.at(":55").do(main)
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+    #main()
