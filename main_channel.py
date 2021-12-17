@@ -106,19 +106,21 @@ def get_info_for_tickers(list_of_tickers):
 
 
 def main():
-    print("Current time is " + str(datetime.datetime.now().time())[:-7])
-    start_time = datetime.time(hour=6, minute=0)
-    finish_time = datetime.time(hour=23, minute=0)
-    list_of_tickers = get_list_of_tickers()
-    if start_time < datetime.datetime.now(tz=tzoffset("UTC+0", 0)).time() < finish_time \
-            and datetime.datetime.now(tz=tzoffset("UTC+0", 0)).weekday() < 5:
-        data_tickers = get_info_for_tickers(list_of_tickers)
-        five_tickers = ''
-        for count, i in enumerate(data_tickers, 1):
-            five_tickers += i
-            if count % 5 == 0:
-                send_message_to_channel(five_tickers)
-                five_tickers = ''
+    try:
+        start_time = datetime.time(hour=6, minute=0)
+        finish_time = datetime.time(hour=23, minute=0)
+        list_of_tickers = get_list_of_tickers()
+        if start_time < datetime.datetime.now(tz=tzoffset("UTC+0", 0)).time() < finish_time \
+                and datetime.datetime.now(tz=tzoffset("UTC+0", 0)).weekday() < 5:
+            data_tickers = get_info_for_tickers(list_of_tickers)
+            five_tickers = ''
+            for count, i in enumerate(data_tickers, 1):
+                five_tickers += i
+                if count % 5 == 0:
+                    send_message_to_channel(five_tickers)
+                    five_tickers = ''
+    except Exception as ex:
+        send_message_about_error(str(ex))
 
 
 if __name__ == "__main__":
