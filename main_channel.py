@@ -28,14 +28,19 @@ def get_current_price(ticker: str):
 
 def get_info_for_one_signal(ticker: str):
     pattern_url = "http://fincloudlabs.com/api/signal/"
-    r = requests.get(pattern_url + ticker,
-                     headers={'apiaccesskey': 'ABwdI6XOb9eq5Ica1CgV'},
-                     timeout=10)
     try:
+        r = requests.get(pattern_url + ticker,
+                         headers={'apiaccesskey': 'ABwdI6XOb9eq5Ica1CgV'},
+                         timeout=10)
         r_data = json.loads(r.text)
         dict_of_emoji = {'HOLD': "🟡", "BUY": "🔴", "SELL": "🟢"}
         r_data["signal"] = r_data["signal"] + dict_of_emoji[r_data["signal"]]
     except KeyError:
+        send_message_about_error(r.url + r.text +
+                                 str(traceback.format_exc()))
+        print(r.url + r.text)
+        return ''
+    except Exception as ex:
         send_message_about_error(r.url + r.text +
                                  str(traceback.format_exc()))
         print(r.url + r.text)
